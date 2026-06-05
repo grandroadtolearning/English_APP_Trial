@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用 AI 背單字｜製作中</title>
+<style>
+  :root{
+    --bg:#0f0e0c; --ink:#f5f1e8; --gray:#b8b0a0; --gold:#c9a662; --line:rgba(201,166,98,.25);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    background:radial-gradient(120% 120% at 50% 0%, #1c1916 0%, var(--bg) 60%);
+    color:var(--ink);
+    min-height:100%;
+    display:flex;align-items:center;justify-content:center;
+    padding:32px 20px;-webkit-font-smoothing:antialiased;text-align:center;
+  }
+  .wrap{max-width:480px;width:100%;}
+  .brand{font-size:.82rem;letter-spacing:.18em;color:var(--gold);margin-bottom:36px;}
+  .badge{
+    display:inline-block;font-size:.74rem;letter-spacing:.12em;color:var(--gold);
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:22px;
+  }
+  h1{font-size:2.3rem;font-weight:700;letter-spacing:.03em;line-height:1.25;}
+  h1 .en{display:block;font-size:.95rem;font-weight:400;letter-spacing:.22em;color:var(--gray);margin-top:10px;}
+  .dots{margin:26px 0 20px;}
+  .dots i{
+    display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);
+    margin:0 5px;opacity:.3;animation:blink 1.4s infinite;
+  }
+  .dots i:nth-child(2){animation-delay:.2s;}
+  .dots i:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,100%{opacity:.25;transform:translateY(0);}50%{opacity:1;transform:translateY(-3px);}}
+  p.lead{color:var(--gray);font-size:1rem;line-height:1.8;}
+  .line{height:1px;background:var(--line);margin:30px 0;}
+  .foot{color:var(--gray);font-size:.8rem;line-height:1.7;}
+  .foot b{color:var(--ink);font-weight:600;}
+  @media (max-width:380px){h1{font-size:1.9rem;}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">得勝者文教 ｜ 大腦駭客</div>
+    <span class="badge">COMING SOON ・ 製作中</span>
+    <h1>用 AI 背單字<span class="en">AI VOCABULARY COACH</span></h1>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="lead">不再 2 小時硬背、一週就忘。<br>讓 AI 幫你用對方法，把單字真正記住。<br>產品正在最後打磨中，很快與你見面。</p>
+    <div class="line"></div>
+    <p class="foot">你是在 <b>6/18 英文試聽</b> 掃到這頁的嗎？<br>把這頁加入書籤，上線第一時間通知你 ✦</p>
+  </div>
+</body>
+</html>
