@@ -146,6 +146,48 @@
   a.cta{text-decoration:none;display:block;}
   .hide{display:none !important;}
   .caret{color:var(--sub);font-size:.9rem;}
+
+  /* 熟悉度 */
+  .fam{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+  .fam button{background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:14px 6px;
+    cursor:pointer;text-align:center;font-family:inherit;transition:.15s;}
+  .fam button .ico{font-size:1.5rem;}
+  .fam button .t{font-weight:600;font-size:.86rem;margin-top:3px;}
+  .fam button .d{font-size:.66rem;color:var(--sub);}
+  .fam button.on-g{border-color:var(--green);background:hsl(142 71% 45% / .08);}
+  .fam button.on-y{border-color:var(--orange);background:hsl(38 100% 50% / .08);}
+  .fam button.on-r{border-color:var(--red);background:hsl(0 100% 59% / .07);}
+
+  /* 大腦駭客 字根 */
+  .amber-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:var(--r);
+    padding:13px 14px;color:var(--amber-ink);font-weight:600;font-size:.92rem;cursor:pointer;font-family:inherit;}
+  .amber-toggle .gen{font-size:.74rem;font-weight:500;opacity:.8;}
+  .amber-body{background:var(--amber-bg);border:1px solid var(--amber-line);border-top:none;
+    border-radius:0 0 var(--r) var(--r);padding:14px;margin-top:-7px;font-size:.9rem;}
+  .amber-chip{display:inline-block;font-size:.72rem;font-family:ui-monospace,monospace;background:#fde9b8;
+    color:var(--amber-ink);padding:2px 8px;border-radius:99px;margin:2px 3px 0 0;}
+  .amber-body .insight{background:#fef3c7;border-radius:9px;padding:9px 11px;margin-top:10px;}
+  .amber-body .sample{margin-top:10px;padding-top:10px;border-top:1px solid var(--amber-line);font-style:italic;color:var(--sub);}
+
+  /* Stage 3 靈魂連結 */
+  .tabs{display:flex;gap:4px;background:var(--muted);border-radius:var(--r);padding:4px;margin:14px 0;}
+  .tab{flex:1;border:none;background:transparent;border-radius:9px;padding:9px 4px;font-size:.85rem;font-weight:500;
+    color:var(--sub);cursor:pointer;font-family:inherit;}
+  .tab.active{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .prompt{border-radius:var(--r);padding:13px 14px;font-size:.92rem;margin-bottom:8px;}
+  .prompt.pink{background:linear-gradient(135deg,#fdf2f8,#faf5ff);border:1px solid #fbcfe8;}
+  .prompt.blue{background:var(--blue-bg);border:1px solid var(--blue-line);}
+  .prompt.amber{background:var(--amber-bg);border:1px solid var(--amber-line);line-height:1.7;}
+  textarea.soul{width:100%;background:var(--card);border:1px solid var(--line);border-radius:var(--r);color:var(--ink);
+    padding:12px;font-size:1rem;font-family:inherit;resize:vertical;min-height:120px;margin-bottom:4px;}
+  textarea.soul:focus{outline:none;border-color:var(--blue);}
+  .switch{position:relative;display:inline-block;width:50px;height:30px;flex:none;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:var(--line);border-radius:99px;transition:.2s;cursor:pointer;}
+  .slider:before{content:"";position:absolute;height:26px;width:26px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .switch input:checked + .slider{background:var(--green);}
+  .switch input:checked + .slider:before{transform:translateX(20px);}
 </style>
 </head>
 <body>
@@ -208,7 +250,36 @@
       </div>
     </div>
 
-    <button class="btn primary" onclick="goStage(2)">下一步：深化應用 →</button>
+    <!-- 熟悉度 -->
+    <div class="card">
+      <div class="eyebrow">你對這個字的熟悉度？ <span style="color:var(--red)">*</span></div>
+      <div class="fam" id="fam">
+        <button onclick="pickFam(this,'g')"><div class="ico">✅</div><div class="t">超熟</div><div class="d">以前就背過</div></button>
+        <button onclick="pickFam(this,'y')"><div class="ico">⚠️</div><div class="t">不太熟</div><div class="d">看過但不熟</div></button>
+        <button onclick="pickFam(this,'r')"><div class="ico">❌</div><div class="t">不會</div><div class="d">完全陌生</div></button>
+      </div>
+    </div>
+
+    <!-- 大腦駭客：字根字首字尾解碼 -->
+    <div style="margin-bottom:14px;">
+      <button class="amber-toggle" onclick="genMorpheme()">
+        <span>🧠 大腦駭客：字根字首字尾解碼</span><span class="gen" id="amberCaret">點擊生成 ✦</span>
+      </button>
+      <div id="amberBody" class="amber-body hide">
+        <p>hollow 源自古英語 <b>holh / hol</b>（洞、空隙、凹陷處），核心意義就是「<b>洞</b>」，再引申為「中空、空洞、不真實」。</p>
+        <div style="margin-top:8px;">橋接單字：<span class="amber-chip">hole</span><span class="amber-chip">hold</span></div>
+        <div class="insight">💡 語感邏輯：看到 hollow 先想「裡面有個洞 → 中空」，再延伸到「內容空洞、不真實」（a hollow promise）。</div>
+        <div class="sample">✍️ 例句：The hollow tree became home to a family of owls.</div>
+      </div>
+    </div>
+
+    <!-- 聯想掛鉤 -->
+    <div class="card">
+      <div class="eyebrow">💡 我的聯想掛鉤 <span class="muted" style="font-weight:400;">(選填)</span></div>
+      <textarea class="note" id="hook" placeholder="寫下任何能幫你記住 hollow 的方式：諧音、畫面、故事都可以…例如「哈囉～對著樹洞喊，回音空空 → hollow 中空」"></textarea>
+    </div>
+
+    <button class="btn primary" id="s1next" onclick="goStage(2)" disabled>請先選擇熟悉度</button>
   </section>
 
   <!-- ===================== STAGE 2 深化 ===================== -->
@@ -282,42 +353,88 @@
       <div id="clozeFb" style="font-size:.86rem;margin-top:8px;"></div>
     </div>
 
+    <!-- 主動回想（語音 + AI） -->
+    <div class="card">
+      <div class="eyebrow">🎙️ 主動回想 · 用自己的話解釋</div>
+      <div class="muted" style="font-size:.8rem;margin-bottom:10px;">按麥克風開口說，AI 會即時評估你的理解</div>
+
+      <div class="task">
+        <div class="row"><div><span class="num">1. 易混淆詞</span><div class="desc">說明這個字和相似字的差異</div><div class="hintq">例如：這個字和 "empty" 有什麼不同？</div></div>
+          <button class="micbtn" id="micCompare" onclick="toggleRec('compare')">🎤</button></div>
+        <textarea id="txtCompare" placeholder="（按麥克風用英文/中文說，也可打字）"></textarea>
+        <div class="st" id="stCompare">按麥克風開始</div>
+        <div id="fbCompare"></div>
+      </div>
+
+      <div class="task">
+        <div class="row"><div><span class="num">2. 搭配詞</span><div class="desc">說出你記得的搭配詞和意思</div><div class="hintq">你記得 3 個搭配詞嗎？試著說出它們的意思</div></div>
+          <button class="micbtn" id="micCollocations" onclick="toggleRec('collocations')">🎤</button></div>
+        <textarea id="txtCollocations" placeholder="（例如 hollow out、a hollow victory…）"></textarea>
+        <div class="st" id="stCollocations">按麥克風開始</div>
+        <div id="fbCollocations"></div>
+      </div>
+
+      <div class="task" style="margin-bottom:0;">
+        <div class="row"><div><span class="num">3. 詞性變化</span><div class="desc">說出不同詞性的變化形式</div><div class="hintq">這個字有 4 個詞性變化，你記得嗎？</div></div>
+          <button class="micbtn" id="micForms" onclick="toggleRec('forms')">🎤</button></div>
+        <textarea id="txtForms" placeholder="（例如 hollow adj./n./v.、hollowness n.…）"></textarea>
+        <div class="st" id="stForms">按麥克風開始</div>
+        <div id="fbForms"></div>
+      </div>
+
+      <div class="spacer"></div>
+      <button class="btn primary sm" id="submitEval" onclick="submitEval()">✈ 送出評估</button>
+      <div id="evalOverall"></div>
+    </div>
+
     <button class="btn primary" onclick="goStage(3)">下一步：個人化產出 →</button>
     <div class="spacer"></div>
     <button class="btn gray sm" onclick="goStage(1)">← 上一步</button>
   </section>
 
-  <!-- ===================== STAGE 3 產出 ===================== -->
+  <!-- ===================== STAGE 3 產出 · 靈魂連結 ===================== -->
   <section id="s3" class="hide">
-    <div class="word">hollow</div>
-    <div class="center muted" style="margin:2px 0 16px;">用自己的話解釋你學到的內容</div>
-
-    <div class="task">
-      <div class="row"><div><span class="num">1. 易混淆詞</span><div class="desc">說明這個字和相似字的差異</div><div class="hintq">例如：這個字和 "empty" 有什麼不同？</div></div>
-        <button class="micbtn" id="micCompare" onclick="toggleRec('compare')">🎤</button></div>
-      <textarea id="txtCompare" placeholder="（按麥克風用英文/中文說，也可打字）"></textarea>
-      <div class="st" id="stCompare">按麥克風開始</div>
-      <div id="fbCompare"></div>
+    <div class="center" style="margin-bottom:4px;">
+      <div style="font-size:1.5rem;font-weight:700;">❤️ 靈魂連結 ❤️</div>
+      <div class="muted" style="font-size:.9rem;">把單字和你的生活連結起來</div>
     </div>
 
-    <div class="task">
-      <div class="row"><div><span class="num">2. 搭配詞</span><div class="desc">說出你記得的搭配詞和意思</div><div class="hintq">你記得 3 個搭配詞嗎？試著說出它們的意思</div></div>
-        <button class="micbtn" id="micCollocations" onclick="toggleRec('collocations')">🎤</button></div>
-      <textarea id="txtCollocations" placeholder="（例如 hollow out、a hollow victory…）"></textarea>
-      <div class="st" id="stCollocations">按麥克風開始</div>
-      <div id="fbCollocations"></div>
+    <div class="tabs">
+      <button class="tab active" id="tab-free" onclick="switchTab('free')">✨ 自由書寫</button>
+      <button class="tab" id="tab-starter" onclick="switchTab('starter')">📖 句子起頭</button>
+      <button class="tab" id="tab-scenario" onclick="switchTab('scenario')">💬 場景挑戰</button>
     </div>
 
-    <div class="task">
-      <div class="row"><div><span class="num">3. 詞性變化</span><div class="desc">說出不同詞性的變化形式</div><div class="hintq">這個字有 4 個詞性變化，你記得嗎？</div></div>
-        <button class="micbtn" id="micForms" onclick="toggleRec('forms')">🎤</button></div>
-      <textarea id="txtForms" placeholder="（例如 hollow adj./n./v.、hollowness n.…）"></textarea>
-      <div class="st" id="stForms">按麥克風開始</div>
-      <div id="fbForms"></div>
+    <!-- 自由書寫 -->
+    <div class="panel" id="p-free">
+      <div class="prompt pink">💬 想想看，這個字和你的生活有什麼關聯？</div>
+      <textarea id="txtFree" class="soul" placeholder='用 "hollow" 寫一個關於你自己的句子...'></textarea>
+      <div class="row"><span class="muted" style="font-size:.78rem;">提示：不用寫很長，一兩句話就好</span><span class="muted" style="font-size:.78rem;" id="cntFree">0 字</span></div>
+      <button class="btn gray sm" style="margin-top:8px;" onclick="guide()">✨ 需要引導</button>
+      <div id="guideBox"></div>
     </div>
 
-    <button class="btn primary" id="submitEval" onclick="submitEval()">✈ 送出評估</button>
-    <div id="evalOverall"></div>
+    <!-- 句子起頭 -->
+    <div class="panel hide" id="p-starter">
+      <div class="prompt blue">🚀 接續這個句子：<br><span style="color:var(--blue);font-weight:600;">Despite achieving what I wanted, the result felt somewhat hollow because...</span></div>
+      <textarea id="txtStarter" class="soul" placeholder="繼續完成這個句子..."></textarea>
+      <div class="row"><span class="muted" style="font-size:.78rem;">提示：不用寫很長，一兩句話就好</span><span class="muted" style="font-size:.78rem;" id="cntStarter">0 字</span></div>
+    </div>
+
+    <!-- 場景挑戰 -->
+    <div class="panel hide" id="p-scenario">
+      <div class="prompt amber">📽️ 場景：你為了準備會考，花了大量時間補習、刷題，甚至犧牲了跟朋友出去玩的時間。雖然最後你考到了非常理想的成績，讓老師和家人都替你感到驕傲，但你卻發現自己內心並沒有預期中的快樂或成就感，反而感到一絲空虛。你會如何用『hollow』這個字來描述你當下的心情，或者這場勝利對你來說的意義？</div>
+      <textarea id="txtScenario" class="soul" placeholder='在這個場景中使用 "hollow"...'></textarea>
+      <div class="row"><span class="muted" style="font-size:.78rem;">提示：不用寫很長，一兩句話就好</span><span class="muted" style="font-size:.78rem;" id="cntScenario">0 字</span></div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;">
+      <div><div style="font-weight:600;font-size:.92rem;">開啟大腦駭客深度解析</div><div class="muted" style="font-size:.76rem;">包含文法、句構、用字</div></div>
+      <label class="switch"><input type="checkbox" id="deepMode" checked><span class="slider"></span></label>
+    </div>
+
+    <button class="btn primary" id="submitSentence" onclick="submitSentence()">✈ 送出句子</button>
+    <div id="sentenceFb"></div>
     <button class="ghostlink" onclick="goStage('close')">跳過此挑戰</button>
     <div class="spacer"></div>
     <button class="btn gray sm" onclick="goStage(2)">← 上一步</button>
@@ -359,6 +476,18 @@
   function chunkTog(el){el.querySelector('.ex').classList.toggle('hide');el.classList.toggle('open');}
   /* 折疊 */
   function collap(el){el.parentElement.querySelector('.collap-body').classList.toggle('hide');}
+  /* 熟悉度（必選才能進 Stage 2） */
+  function pickFam(btn,k){
+    document.querySelectorAll('#fam button').forEach(b=>b.className='');
+    btn.className=k==='g'?'on-g':k==='y'?'on-y':'on-r';
+    const n=document.getElementById('s1next');n.disabled=false;n.textContent='下一步：深化應用 →';
+  }
+  /* 大腦駭客字根：點擊生成（內容已為 hollow 預備） */
+  function genMorpheme(){
+    const b=document.getElementById('amberBody'),c=document.getElementById('amberCaret');
+    const open=b.classList.toggle('hide')===false;
+    c.textContent=open?'－':'點擊生成 ✦';
+  }
   /* 填空 */
   function checkCloze(){
     const v=document.getElementById('clozeInput').value.trim().toLowerCase();
@@ -439,6 +568,52 @@
     }finally{btn.disabled=false;}
   }
   function esc(s){return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+  /* ===== Stage 3 靈魂連結 ===== */
+  let activeTab='free';
+  const TAB_TXT={free:'txtFree',starter:'txtStarter',scenario:'txtScenario'};
+  function switchTab(t){
+    activeTab=t;
+    ['free','starter','scenario'].forEach(k=>{
+      document.getElementById('tab-'+k).classList.toggle('active',k===t);
+      document.getElementById('p-'+k).classList.toggle('hide',k!==t);
+    });
+  }
+  function guide(){
+    document.getElementById('guideBox').innerHTML=
+      '<div class="prompt pink" style="margin-top:8px;font-size:.88rem;">✨ 試試看：想一個你「得到了某樣東西，卻覺得沒有想像中開心」的時刻，用 hollow 描述那種空空的感覺。</div>';
+  }
+  // 字數統計
+  Object.values(TAB_TXT).forEach(id=>{
+    const ta=document.getElementById(id);
+    const cnt=document.getElementById('cnt'+id.replace('txt',''));
+    if(ta&&cnt)ta.addEventListener('input',()=>{cnt.textContent=ta.value.trim().length+' 字';});
+  });
+
+  async function submitSentence(){
+    const sentence=document.getElementById(TAB_TXT[activeTab]).value.trim();
+    const fb=document.getElementById('sentenceFb');
+    if(sentence.length<2){fb.innerHTML='<div class="fb bad">⚠️ 先寫一個句子再送出。</div>';return;}
+    const deep=document.getElementById('deepMode').checked;
+    const btn=document.getElementById('submitSentence');btn.disabled=true;
+    fb.innerHTML='<div class="loading"><span class="ld"></span><span class="ld"></span><span class="ld"></span> AI 批改中…</div>';
+    try{
+      const r=await fetch('/api/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'sentence',word:'hollow',sentence,deep})});
+      const raw=await r.text();let d;
+      try{d=JSON.parse(raw);}catch{throw new Error('SERVER');}
+      if(!r.ok||d.error){throw new Error(d.error||'AI 回應失敗');}
+      if(d.raw){fb.innerHTML='<div class="fb">'+esc(d.raw)+'</div>';return;}
+      fb.innerHTML='<div class="fb ok"><h4>📝 AI 批改</h4>'
+        +(d.corrected_sentence?'<div class="line">修正後：<span class="corr">'+esc(d.corrected_sentence)+'</span></div>':'')
+        +(d.error_category?'<div class="line"><span class="pill">'+esc(d.error_category)+'</span></div>':'')
+        +(d.quick_tip?'<div class="line"><b>重點：</b>'+esc(d.quick_tip)+'</div>':'')
+        +(d.diagnosis?'<div class="line muted">'+esc(d.diagnosis)+'</div>':'')
+        +(d.closing?'<div class="line">'+esc(d.closing)+'</div>':'')+'</div>';
+    }catch(err){
+      const msg=err.message==='SERVER'?'AI 服務尚未就緒（請確認已部署且已設定 GEMINI_API_KEY）':(err.message||'發生錯誤');
+      fb.innerHTML='<div class="fb bad">⚠️ '+msg+'，請再試一次。</div>';
+    }finally{btn.disabled=false;}
+  }
 </script>
 </body>
 </html>
