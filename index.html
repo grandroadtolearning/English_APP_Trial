@@ -1,55 +1,444 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>用 AI 背單字｜製作中</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<title>大腦駭客：高中生英文單字力</title>
+<meta name="description" content="一個單字，三階段 AI 帶你真的會用。語音輸入，AI 即時評估。" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f0e0c; --ink:#f5f1e8; --gray:#b8b0a0; --gold:#c9a662; --line:rgba(201,166,98,.25);
+    --bg:hsl(0 0% 96%); --card:#fff; --ink:#000; --sub:hsl(0 0% 45%);
+    --line:hsl(0 0% 88%); --muted:hsl(240 5% 95%);
+    --blue:hsl(211 100% 50%); --green:#34C759; --red:#FF3B30; --orange:#FF9500;
+    --amber-bg:#fffbeb; --amber-line:#fde68a; --amber-ink:#b45309;
+    --rose-ink:#f43f5e; --rose-bg:#fff1f2; --rose-line:#ffe4e6;
+    --blue-bg:#eff6ff; --blue-line:#bfdbfe;
+    --r:12px; --r-card:18px;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
-  body{
-    font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
-    background:radial-gradient(120% 120% at 50% 0%, #1c1916 0%, var(--bg) 60%);
-    color:var(--ink);
-    min-height:100%;
-    display:flex;align-items:center;justify-content:center;
-    padding:32px 20px;-webkit-font-smoothing:antialiased;text-align:center;
-  }
-  .wrap{max-width:480px;width:100%;}
-  .brand{font-size:.82rem;letter-spacing:.18em;color:var(--gold);margin-bottom:36px;}
-  .badge{
-    display:inline-block;font-size:.74rem;letter-spacing:.12em;color:var(--gold);
-    border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin-bottom:22px;
-  }
-  h1{font-size:2.3rem;font-weight:700;letter-spacing:.03em;line-height:1.25;}
-  h1 .en{display:block;font-size:.95rem;font-weight:400;letter-spacing:.22em;color:var(--gray);margin-top:10px;}
-  .dots{margin:26px 0 20px;}
-  .dots i{
-    display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);
-    margin:0 5px;opacity:.3;animation:blink 1.4s infinite;
-  }
-  .dots i:nth-child(2){animation-delay:.2s;}
-  .dots i:nth-child(3){animation-delay:.4s;}
-  @keyframes blink{0%,100%{opacity:.25;transform:translateY(0);}50%{opacity:1;transform:translateY(-3px);}}
-  p.lead{color:var(--gray);font-size:1rem;line-height:1.8;}
-  .line{height:1px;background:var(--line);margin:30px 0;}
-  .foot{color:var(--gray);font-size:.8rem;line-height:1.7;}
-  .foot b{color:var(--ink);font-weight:600;}
-  @media (max-width:380px){h1{font-size:1.9rem;}}
+  body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Noto Sans TC',sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100%;line-height:1.6;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+  ::-webkit-scrollbar{display:none;}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px 56px;}
+
+  /* header + stage dots */
+  .top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.8);
+    backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 16px 12px;margin:0 -16px 18px;}
+  .bar{height:4px;background:var(--muted);border-radius:99px;overflow:hidden;margin-bottom:14px;}
+  .bar>i{display:block;height:100%;background:var(--blue);transition:width .4s ease;border-radius:99px;}
+  .dots{display:flex;align-items:center;justify-content:center;gap:0;}
+  .dot{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .dot .c{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:.82rem;font-weight:600;background:var(--muted);color:var(--sub);transition:.2s;}
+  .dot .t{font-size:.68rem;color:var(--sub);}
+  .dot.active .c{background:var(--blue);color:#fff;}
+  .dot.active .t{color:var(--blue);font-weight:600;}
+  .dot.done .c{background:var(--green);color:#fff;}
+  .link{width:34px;height:2px;background:var(--line);margin:0 2px;margin-bottom:18px;}
+  .link.done{background:var(--green);}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+    padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .label-u{font-size:.82rem;font-weight:500;color:var(--sub);text-decoration:underline;text-underline-offset:3px;}
+  .eyebrow{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .eyebrow .sub{font-weight:400;color:var(--sub);font-size:.78rem;}
+  .muted{color:var(--sub);}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+
+  .word{font-size:2.2rem;font-weight:700;letter-spacing:-.5px;text-align:center;}
+  .ipa{color:var(--sub);font-size:1rem;text-align:center;margin-top:2px;}
+  .pos{display:inline-block;margin-top:8px;font-size:.8rem;padding:3px 12px;border-radius:99px;background:hsl(211 100% 50% / .1);color:var(--blue);}
+  .speak{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--blue);
+    font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .speak:active{transform:scale(.92);}
+
+  .badge-rose{display:inline-block;font-size:.7rem;font-style:italic;padding:1px 8px;border-radius:99px;color:var(--rose-ink);background:var(--rose-bg);border:1px solid var(--rose-line);}
+  .badge-orange{display:inline-block;font-size:.7rem;padding:1px 7px;border-radius:5px;color:var(--orange);background:hsl(38 100% 50% / .12);border:1px solid hsl(38 100% 50% / .3);}
+  .nf{font-size:.68rem;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:1px 8px;background:var(--card);}
+  .entry{padding:10px 0;border-bottom:1px solid var(--line);}
+  .entry:last-child{border-bottom:none;}
+  .reveal{cursor:pointer;color:var(--blue);font-size:.8rem;}
+  .zh-hide{filter:blur(6px);transition:.2s;user-select:none;}
+  .zh-hide.show{filter:none;}
+  .ex{font-style:italic;margin-top:2px;}
+
+  .fam-row{padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;}
+  .fam-row:last-child{border-bottom:none;}
+  .fam-detail{font-size:.86rem;margin-top:6px;}
+
+  .chunk{border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:9px;}
+  .chunk.open{border-color:var(--blue);border-style:dashed;}
+  .chunk .en{font-weight:600;color:var(--blue);font-size:1.05rem;}
+  .chunk .zh{color:var(--sub);font-size:.84rem;margin-top:1px;}
+  .chunk .ex{font-size:.86rem;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+
+  .collap-head{cursor:pointer;}
+  .pk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+  .pk .h{font-weight:600;margin-bottom:4px;}
+  .pk .l{background:var(--rose-bg);border:1px solid var(--rose-line);border-radius:var(--r);padding:10px;font-size:.84rem;}
+  .pk .l .h{color:var(--rose-ink);}
+  .pk .r{background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:var(--r);padding:10px;font-size:.84rem;}
+  .pk .r .h{color:var(--blue);}
+  .pk b{font-weight:700;}
+
+  .formula{background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:var(--r);padding:14px;}
+  .formula .code{font-family:ui-monospace,monospace;color:var(--amber-ink);font-weight:600;font-size:1.05rem;}
+  .formula .ex{color:var(--ink);margin-top:8px;}
+  .trap{font-size:.82rem;color:var(--amber-ink);margin-top:10px;padding-top:10px;border-top:1px solid var(--amber-line);}
+
+  .cloze{background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:var(--r-card);padding:16px;}
+  .cloze .q{font-size:.92rem;margin:6px 0;}
+  .cloze .en{font-family:ui-monospace,monospace;font-size:.88rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin:8px 0;}
+
+  /* stage 3 tasks */
+  .task{border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-bottom:12px;}
+  .task .row{align-items:flex-start;}
+  .task .num{font-weight:700;}
+  .task .desc{font-size:.84rem;color:var(--sub);margin-top:2px;}
+  .task .hintq{font-size:.8rem;color:var(--blue);font-style:italic;margin-top:4px;}
+  .micbtn{width:40px;height:40px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:1rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;}
+  .micbtn.rec{background:var(--red);animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 hsl(0 100% 59% / .45);}70%{box-shadow:0 0 0 12px hsl(0 100% 59% / 0);}100%{box-shadow:0 0 0 0 hsl(0 100% 59% / 0);}}
+  .task textarea{width:100%;background:var(--muted);border:1px solid var(--line);border-radius:var(--r);color:var(--ink);
+    padding:10px;font-size:.92rem;font-family:inherit;resize:vertical;min-height:48px;margin-top:8px;}
+  .task textarea:focus{outline:none;border-color:var(--blue);}
+  .task .st{font-size:.74rem;color:var(--sub);margin-top:4px;}
+  .item-fb{font-size:.86rem;margin-top:8px;border-radius:var(--r);padding:9px 11px;}
+  .item-fb.ok{background:hsl(142 71% 45% / .1);}
+  .item-fb.bad{background:hsl(0 100% 59% / .07);}
+
+  textarea.note{width:100%;background:var(--muted);border:1px solid var(--line);border-radius:var(--r);color:var(--ink);
+    padding:10px;font-size:.92rem;font-family:inherit;resize:vertical;min-height:54px;margin-top:8px;}
+  textarea.note:focus{outline:none;border-color:var(--blue);}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:14px;border-radius:14px;
+    border:none;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:transform .1s;}
+  .btn:active{transform:scale(.985);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.primary{background:var(--blue);color:#fff;}
+  .btn.green{background:var(--green);color:#fff;}
+  .btn.gray{background:var(--muted);color:var(--ink);}
+  .btn.sm{padding:10px;font-size:.9rem;}
+  .ghostlink{display:block;width:100%;text-align:center;color:var(--sub);font-size:.86rem;background:none;border:none;cursor:pointer;padding:10px;font-family:inherit;}
+  .spacer{height:8px;}
+
+  .fb{border-radius:var(--r);padding:14px;margin-top:12px;border:1px solid var(--line);background:var(--card);}
+  .fb.ok{background:hsl(142 71% 45% / .08);border-color:hsl(142 71% 45% / .3);}
+  .fb.bad{background:hsl(0 100% 59% / .06);border-color:hsl(0 100% 59% / .3);}
+  .loading{display:flex;align-items:center;gap:9px;color:var(--sub);justify-content:center;padding:12px;}
+  .ld{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:blink 1.2s infinite;}
+  .ld:nth-child(2){animation-delay:.2s;}.ld:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,100%{opacity:.25;}50%{opacity:1;}}
+
+  .center{text-align:center;}
+  .big{font-size:1.5rem;font-weight:700;line-height:1.4;margin:8px 0;}
+  .check{color:var(--green);margin-right:7px;font-weight:700;}
+  .tag-done{display:inline-block;font-size:.74rem;padding:3px 12px;border-radius:99px;color:var(--green);background:hsl(142 71% 45% / .12);}
+  .coach{background:linear-gradient(135deg,#1c1c1e,#2c2c2e);color:#fff;}
+  .coach .eyebrow{color:rgba(255,255,255,.6);}
+  a.cta{text-decoration:none;display:block;}
+  .hide{display:none !important;}
+  .caret{color:var(--sub);font-size:.9rem;}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="brand">得勝者文教 ｜ 大腦駭客</div>
-    <span class="badge">COMING SOON ・ 製作中</span>
-    <h1>用 AI 背單字<span class="en">AI VOCABULARY COACH</span></h1>
-    <div class="dots"><i></i><i></i><i></i></div>
-    <p class="lead">不再 2 小時硬背、一週就忘。<br>讓 AI 幫你用對方法，把單字真正記住。<br>產品正在最後打磨中，很快與你見面。</p>
-    <div class="line"></div>
-    <p class="foot">你是在 <b>6/18 英文試聽</b> 掃到這頁的嗎？<br>把這頁加入書籤，上線第一時間通知你 ✦</p>
+<div class="wrap">
+  <div class="top">
+    <div class="bar"><i id="progbar" style="width:33%"></i></div>
+    <div class="dots">
+      <div class="dot active" id="d1"><div class="c">1</div><div class="t">認識</div></div>
+      <div class="link" id="l1"></div>
+      <div class="dot" id="d2"><div class="c">2</div><div class="t">深化</div></div>
+      <div class="link" id="l2"></div>
+      <div class="dot" id="d3"><div class="c">3</div><div class="t">產出</div></div>
+    </div>
   </div>
+
+  <!-- ===================== STAGE 1 認識 ===================== -->
+  <section id="s1">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+        <span class="word">hollow</span>
+        <button class="speak" onclick="speak('hollow')">🔊</button>
+      </div>
+      <div class="ipa">/ˈhɑːloʊ/</div>
+      <div class="center"><span class="pos">adj. / n. / v.</span></div>
+    </div>
+
+    <div class="card">
+      <span class="label-u">English Definition</span>
+      <div style="margin-top:8px;">
+        <div class="entry"><div class="row"><span class="badge-rose">adjective</span><span class="nf">🔖 不熟</span></div>
+          <p style="margin-top:5px;">Having an empty space inside; not solid; without real value.</p></div>
+        <div class="entry"><div class="row"><span class="badge-rose">noun</span><span class="nf">🔖 不熟</span></div>
+          <p style="margin-top:5px;">A hole or empty space; a low area or depression in land.</p></div>
+        <div class="entry"><div class="row"><span class="badge-rose">verb</span><span class="nf">🔖 不熟</span></div>
+          <p style="margin-top:5px;">To make a hole or empty space in something; to make something hollow.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="label-u">中文定義</span><span class="reveal" onclick="reveal(this)">👁 顯示中文</span></div>
+      <div class="zh-hide" style="margin-top:8px;">
+        <div class="entry"><span class="badge-rose" style="font-style:normal;">adj.</span><p style="margin-top:3px;font-weight:500;">空心的；凹陷的；虛假的</p></div>
+        <div class="entry"><span class="badge-rose" style="font-style:normal;">n.</span><p style="margin-top:3px;font-weight:500;">洞；凹地；低谷</p></div>
+        <div class="entry"><span class="badge-rose" style="font-style:normal;">v.</span><p style="margin-top:3px;font-weight:500;">挖空；使凹陷</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="label-u">例句</span><span class="reveal" onclick="reveal(this)">👁 顯示翻譯</span></div>
+      <div style="margin-top:8px;">
+        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">adj.</span><button class="speak" onclick="speak('The old tree trunk was completely hollow, making it a perfect hiding spot for small animals.')">🔊</button></div>
+          <p class="ex">"The old tree trunk was completely hollow, making it a perfect hiding spot for small animals."</p>
+          <p class="muted zh-hide" style="font-size:.86rem;">這棵老樹的樹幹完全是空心的，成了小動物完美的藏身之處。</p></div>
+        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">n.</span><button class="speak" onclick="speak('After the heavy rain, a small hollow in the garden collected a pool of water.')">🔊</button></div>
+          <p class="ex">"After the heavy rain, a small hollow in the garden collected a pool of water."</p>
+          <p class="muted zh-hide" style="font-size:.86rem;">大雨過後，花園裡的一個小窪地積了一灘水。</p></div>
+        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">v.</span><button class="speak" onclick="speak('The sculptor used various tools to hollow out the block of wood, creating a beautiful bowl.')">🔊</button></div>
+          <p class="ex">"The sculptor used various tools to hollow out the block of wood, creating a beautiful bowl."</p>
+          <p class="muted zh-hide" style="font-size:.86rem;">雕塑家使用各種工具將木塊挖空，創造出一個美麗的碗。</p></div>
+      </div>
+    </div>
+
+    <button class="btn primary" onclick="goStage(2)">下一步：深化應用 →</button>
+  </section>
+
+  <!-- ===================== STAGE 2 深化 ===================== -->
+  <section id="s2" class="hide">
+    <div class="word" style="margin-bottom:14px;">hollow</div>
+
+    <div class="card">
+      <div class="eyebrow">👪 詞轉化：單字家族</div>
+      <div class="muted" style="font-size:.8rem;margin-bottom:6px;">點擊查看該變體的意思與例句</div>
+      <div class="fam-row" onclick="famTog(this)">
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">adj.</span></div><span class="caret">⌄</span></div>
+        <div class="fam-detail hide"><div class="muted">空的；凹陷的；不真實的</div><p class="ex" style="font-size:.84rem;">The old tree had a hollow trunk.</p><p class="muted" style="font-size:.8rem;">這棵老樹的樹幹是空心的。</p></div>
+      </div>
+      <div class="fam-row" onclick="famTog(this)">
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">n.</span></div><span class="caret">⌄</span></div>
+        <div class="fam-detail hide"><div class="muted">窪地；凹陷處；洞</div><p class="ex" style="font-size:.84rem;">We found a sheltered hollow in the hills.</p><p class="muted" style="font-size:.8rem;">我們在山丘中找到了一個避風的窪地。</p></div>
+      </div>
+      <div class="fam-row" onclick="famTog(this)">
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">v.</span></div><span class="caret">⌄</span></div>
+        <div class="fam-detail hide"><div class="muted">挖空，使…中空；使…凹陷</div><p class="ex" style="font-size:.84rem;">The constant dripping of water had hollowed the stone.</p><p class="muted" style="font-size:.8rem;">水滴不斷滴落已將石頭滴穿。</p></div>
+      </div>
+      <div class="fam-row" onclick="famTog(this)">
+        <div class="row"><div><b>hollowness</b> <span class="badge-orange">n.</span></div><span class="caret">⌄</span></div>
+        <div class="fam-detail hide"><div class="muted">空虛；空洞；中空狀態</div><p class="ex" style="font-size:.84rem;">She felt a deep hollowness after her best friend moved away.</p><p class="muted" style="font-size:.8rem;">她最好的朋友搬走後，她感到一陣深沉的空虛。</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">🧩 語塊積木 Chunks</div>
+      <div class="muted" style="font-size:.8rem;margin-bottom:8px;">點擊語塊聽發音，並展開例句加深印象</div>
+      <div class="chunk" onclick="chunkTog(this,'hollow out')">
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">hollow out</div><div class="zh">挖空；擊空</div></div><button class="speak" onclick="event.stopPropagation();speak('hollow out')">🔊</button></div>
+        <div class="ex hide">"The carpenter decided to hollow out the log to make a unique chair."<br><span class="muted">木匠決定把這段原木挖空，做成一張獨特的椅子。</span></div>
+      </div>
+      <div class="chunk" onclick="chunkTog(this,'a hollow victory')">
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow victory</div><div class="zh">一場空洞的勝利（實質上沒有好處）</div></div><button class="speak" onclick="event.stopPropagation();speak('a hollow victory')">🔊</button></div>
+        <div class="ex hide">"Winning the debate but losing all his friends felt like a hollow victory."<br><span class="muted">贏了辯論卻失去了所有朋友，這感覺像是一場空洞的勝利。</span></div>
+      </div>
+      <div class="chunk" onclick="chunkTog(this,'a hollow sound')">
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow sound</div><div class="zh">空洞的聲音</div></div><button class="speak" onclick="event.stopPropagation();speak('a hollow sound')">🔊</button></div>
+        <div class="ex hide">"We heard a hollow sound when we tapped on the wall."<br><span class="muted">我們敲打牆壁時，聽到一種空洞的聲音。</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow collap-head" onclick="collap(this)">⚔️ 易混淆 PK：中空結構 vs. 內部無物 <span class="caret" style="margin-left:auto;">⌄</span></div>
+      <div class="collap-body hide">
+        <div class="pk">
+          <div class="l"><div class="h">hollow</div>The dentist found a <b>hollow</b> space in the tooth.</div>
+          <div class="r"><div class="h">empty</div>The glass was <b>empty</b> after I drank all the water.</div>
+        </div>
+        <p class="muted" style="font-size:.84rem;">'hollow' 強調物體本身是中空的結構，或指言詞、承諾等缺乏實質內容，帶有「虛假、無意義」的負面意味。而 'empty' 則單純指裡面沒有東西，可能是被用光或移走了，通常沒有 'hollow' 那樣的隱含意義。</p>
+      </div>
+    </div>
+
+    <div class="card formula">
+      <div class="eyebrow" style="color:var(--amber-ink);">🧮 組裝公式</div>
+      <div class="code">S + hollow (v.) + O + out</div>
+      <p class="ex">"The sculptor hollowed out the block of wood."</p>
+      <div class="trap">⚠️ 陷阱：注意動詞 'hollow' 常與 'out' 搭配形成片語 'hollow out' 表示「挖空」，此時動詞是及物的，後面需要受詞。</div>
+    </div>
+
+    <div class="card cloze">
+      <div class="eyebrow" style="color:var(--blue);">✏️ 填空練習</div>
+      <div class="q"><b>中文提示：</b>為保護古蹟，修復團隊仔細地將老舊的木頭___，去除腐爛部分。</div>
+      <div class="en">To preserve the historical site, the restoration team carefully ___ out the old wood to remove the rotten parts.</div>
+      <div class="row" style="gap:8px;">
+        <input id="clozeInput" placeholder="輸入答案…" style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;font-size:.95rem;font-family:inherit;">
+        <button class="btn primary sm" style="width:auto;padding:10px 16px;" onclick="checkCloze()">檢查</button>
+      </div>
+      <div id="clozeFb" style="font-size:.86rem;margin-top:8px;"></div>
+    </div>
+
+    <button class="btn primary" onclick="goStage(3)">下一步：個人化產出 →</button>
+    <div class="spacer"></div>
+    <button class="btn gray sm" onclick="goStage(1)">← 上一步</button>
+  </section>
+
+  <!-- ===================== STAGE 3 產出 ===================== -->
+  <section id="s3" class="hide">
+    <div class="word">hollow</div>
+    <div class="center muted" style="margin:2px 0 16px;">用自己的話解釋你學到的內容</div>
+
+    <div class="task">
+      <div class="row"><div><span class="num">1. 易混淆詞</span><div class="desc">說明這個字和相似字的差異</div><div class="hintq">例如：這個字和 "empty" 有什麼不同？</div></div>
+        <button class="micbtn" id="micCompare" onclick="toggleRec('compare')">🎤</button></div>
+      <textarea id="txtCompare" placeholder="（按麥克風用英文/中文說，也可打字）"></textarea>
+      <div class="st" id="stCompare">按麥克風開始</div>
+      <div id="fbCompare"></div>
+    </div>
+
+    <div class="task">
+      <div class="row"><div><span class="num">2. 搭配詞</span><div class="desc">說出你記得的搭配詞和意思</div><div class="hintq">你記得 3 個搭配詞嗎？試著說出它們的意思</div></div>
+        <button class="micbtn" id="micCollocations" onclick="toggleRec('collocations')">🎤</button></div>
+      <textarea id="txtCollocations" placeholder="（例如 hollow out、a hollow victory…）"></textarea>
+      <div class="st" id="stCollocations">按麥克風開始</div>
+      <div id="fbCollocations"></div>
+    </div>
+
+    <div class="task">
+      <div class="row"><div><span class="num">3. 詞性變化</span><div class="desc">說出不同詞性的變化形式</div><div class="hintq">這個字有 4 個詞性變化，你記得嗎？</div></div>
+        <button class="micbtn" id="micForms" onclick="toggleRec('forms')">🎤</button></div>
+      <textarea id="txtForms" placeholder="（例如 hollow adj./n./v.、hollowness n.…）"></textarea>
+      <div class="st" id="stForms">按麥克風開始</div>
+      <div id="fbForms"></div>
+    </div>
+
+    <button class="btn primary" id="submitEval" onclick="submitEval()">✈ 送出評估</button>
+    <div id="evalOverall"></div>
+    <button class="ghostlink" onclick="goStage('close')">跳過此挑戰</button>
+    <div class="spacer"></div>
+    <button class="btn gray sm" onclick="goStage(2)">← 上一步</button>
+  </section>
+
+  <!-- ===================== CLOSING ===================== -->
+  <section id="close" class="hide">
+    <div class="center" style="padding-top:6px;">
+      <span class="tag-done">完成</span>
+      <div class="big">一個單字，三階段 AI<br>帶你真的「會用」。</div>
+      <div class="muted" style="font-size:.92rem;">你剛剛走的，就是學生每天在 app 裡學每個單字的流程。</div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div style="margin:5px 0;"><span class="check">✓</span><b>認識</b>　多詞性定義、例句、發音</div>
+      <div style="margin:5px 0;"><span class="check">✓</span><b>深化</b>　單字家族、語塊、易混淆、組裝公式、填空</div>
+      <div style="margin:5px 0;"><span class="check">✓</span><b>產出</b>　開口用自己的話解釋，AI 即時評估</div>
+    </div>
+    <div class="card coach">
+      <div class="eyebrow">不只是 AI 工具</div>
+      <div>Beverly 教練<b style="color:#ffd60a">每週看你的學習數據</b>，找出你卡關的地方，再用 1-on-1 的時間陪你討論、調整節奏。AI 負責每天的練習與回饋，教練負責讓你走得遠。</div>
+    </div>
+    <a class="cta" id="lineCta" href="https://line.me/R/ti/p/@desheng" target="_blank" rel="noopener">
+      <button class="btn green">💬 加 Line 預約免費試聽</button>
+    </a>
+    <div class="spacer"></div>
+    <button class="btn gray" onclick="location.reload()">↻ 再體驗一次</button>
+  </section>
+</div>
+
+<script>
+  /* 發音 */
+  function speak(t){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;window.speechSynthesis.speak(u);}
+  /* 中文遮罩 */
+  function reveal(el){el.closest('.card').querySelectorAll('.zh-hide').forEach(z=>z.classList.add('show'));el.style.display='none';}
+  /* 家族展開 */
+  function famTog(el){el.querySelector('.fam-detail').classList.toggle('hide');}
+  /* 語塊展開 */
+  function chunkTog(el){el.querySelector('.ex').classList.toggle('hide');el.classList.toggle('open');}
+  /* 折疊 */
+  function collap(el){el.parentElement.querySelector('.collap-body').classList.toggle('hide');}
+  /* 填空 */
+  function checkCloze(){
+    const v=document.getElementById('clozeInput').value.trim().toLowerCase();
+    const fb=document.getElementById('clozeFb');
+    if(v==='hollowed'||v==='hollow'){fb.innerHTML='<span style="color:var(--green);font-weight:600;">✅ 正確！hollowed out（挖空）</span>';}
+    else{fb.innerHTML='<span style="color:var(--red);">再想想 — 提示：是 hollow 的過去式，hollow___ out</span>';}
+  }
+
+  /* 階段切換 + dots */
+  const PROG={1:33,2:66,3:100,close:100};
+  function setDots(stage){
+    const n = stage==='close'?4:stage;
+    [['d1','l1',1],['d2','l2',2],['d3',null,3]].forEach(([d,l,i])=>{
+      const dot=document.getElementById(d);dot.className='dot'+(i<n?' done':i===n?' active':'');
+      if(i<n)dot.querySelector('.c').textContent='✓';else dot.querySelector('.c').textContent=i;
+      if(l)document.getElementById(l).className='link'+(i<n?' done':'');
+    });
+  }
+  function goStage(s){
+    ['s1','s2','s3','close'].forEach(id=>document.getElementById(id).classList.add('hide'));
+    document.getElementById(({1:'s1',2:'s2',3:'s3',close:'close'})[s]).classList.remove('hide');
+    document.getElementById('progbar').style.width=PROG[s]+'%';
+    setDots(s);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  /* 語音辨識（Stage 3 三題） */
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let rec=null,recKey=null;
+  const KEYS=['compare','collocations','forms'];
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  KEYS.forEach(k=>{
+    document.getElementById('txt'+cap(k)).addEventListener('input',()=>{});
+  });
+  function toggleRec(key){
+    const mic=document.getElementById('mic'+cap(key)), st=document.getElementById('st'+cap(key));
+    if(!SR){st.textContent='此瀏覽器不支援語音，請直接打字（建議 Chrome / Safari）';document.getElementById('txt'+cap(key)).focus();return;}
+    if(rec&&recKey===key){rec.stop();return;}
+    if(rec){rec.stop();}
+    rec=new SR();recKey=key;rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
+    mic.classList.add('rec');st.textContent='聽你說…（再按一下停止）';
+    let fin='';
+    rec.onresult=(e)=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else it+=t;}
+      document.getElementById('txt'+cap(key)).value=(fin+it).trim();};
+    rec.onerror=()=>{st.textContent='聽不太到，請再試一次或直接打字';mic.classList.remove('rec');};
+    rec.onend=()=>{mic.classList.remove('rec');rec=null;st.textContent='錄好了！可再按一次重講';};
+    rec.start();
+  }
+
+  /* 送出評估 → AI */
+  async function submitEval(){
+    const answers={
+      compare:document.getElementById('txtCompare').value.trim(),
+      collocations:document.getElementById('txtCollocations').value.trim(),
+      forms:document.getElementById('txtForms').value.trim()
+    };
+    if(!answers.compare&&!answers.collocations&&!answers.forms){
+      document.getElementById('evalOverall').innerHTML='<div class="fb bad">⚠️ 至少先回答一題再送出評估。</div>';return;
+    }
+    const btn=document.getElementById('submitEval');btn.disabled=true;
+    const ov=document.getElementById('evalOverall');
+    ov.innerHTML='<div class="loading"><span class="ld"></span><span class="ld"></span><span class="ld"></span> AI 評估中…</div>';
+    KEYS.forEach(k=>document.getElementById('fb'+cap(k)).innerHTML='');
+    try{
+      const r=await fetch('/api/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({word:'hollow',answers})});
+      const raw=await r.text();let data;
+      try{data=JSON.parse(raw);}catch{throw new Error('SERVER');}
+      if(!r.ok||data.error){throw new Error(data.error||'AI 回應失敗');}
+      if(data.raw){ov.innerHTML='<div class="fb">'+esc(data.raw)+'</div>';return;}
+      (data.items||[]).forEach(it=>{
+        const el=document.getElementById('fb'+cap(it.key));
+        if(el)el.innerHTML='<div class="item-fb '+(it.ok?'ok':'bad')+'">'+(it.ok?'✅ ':'💡 ')+esc(it.comment||'')+'</div>';
+      });
+      ov.innerHTML='<div class="fb ok"><b>整體：</b>'+esc(data.overall||'做得好！')+'</div>';
+    }catch(err){
+      const msg=err.message==='SERVER'?'AI 服務尚未就緒（請確認已部署且已設定 GEMINI_API_KEY）':(err.message||'發生錯誤');
+      ov.innerHTML='<div class="fb bad">⚠️ '+msg+'，請再試一次。</div>';
+    }finally{btn.disabled=false;}
+  }
+  function esc(s){return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+</script>
 </body>
 </html>
