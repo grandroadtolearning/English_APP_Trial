@@ -1,63 +1,83 @@
-// Vercel Serverless Function — Gemini 評估（Stage 3 用自己的話解釋）
+// Vercel Serverless Function — Gemini 評估
 // 讀環境變數 GEMINI_API_KEY，前端用同源 fetch('/api/grade') 呼叫，金鑰不進瀏覽器。
+// 兩種模式：
+//   mode 'recall'   → Stage 2 主動回想：接收「一段連續錄音」(base64)，Gemini 原生音訊「轉錄＋評估」
+//   mode 'sentence' → Stage 3 靈魂連結：造句批改（文字，可深度解析）
 
 const MODEL = "gemini-2.5-flash"; // 如需改模型，改這行
 const ENDPOINT = (key) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
 
-function buildPrompt(payload) {
-  const { word, answers } = payload;
-  const a = answers || {};
-  return `你是一位親切、鼓勵導向的英文老師，學生是台灣「國三升高一」的學生。
-請用「繁體中文」回饋，語氣溫暖。避免「學測、指考」等高三詞彙，可用「段考、升高中」。
+const COMMON = `你是一位親切、鼓勵導向的英文老師，學生是台灣「國三升高一」的學生。
+請用「繁體中文」回饋，語氣溫暖。避免「學測、指考」等高三詞彙，可用「段考、會考、升高中」。`;
 
-學生剛學完單字「${word}」，現在要「用自己的話解釋學到的內容」。以下是學生用語音說出來的回答
-（語音轉文字，可能有辨識誤差，請容忍小錯）：
+function recallPrompt(word) {
+  return `${COMMON}
 
-1. 易混淆詞（這個字和相似字 empty 的差異）：「${a.compare || "（未作答）"}」
-2. 搭配詞（記得的搭配詞和意思）：「${a.collocations || "（未作答）"}」
-3. 詞性變化（不同詞性的變化形式）：「${a.forms || "（未作答）"}」
+學生剛學完單字「${word}」，用「一段連續錄音」依序回答了三個面向（可能有些沒答到）：
+1) compare：這個字和相似字 empty 的差異
+2) collocations：記得的搭配詞和意思（例如 hollow out、a hollow victory）
+3) forms：不同詞性的變化（hollow adj./n./v.、hollowness n.）
 
-請逐項評估學生答得好不好，給具體又簡短的回饋。只回傳 JSON，格式如下，不要任何多餘文字：
+請先「完整轉錄」這段英文/中文錄音，再就三個面向各自評估答得好不好。
+只回傳 JSON，不要多餘文字：
 {
-  "items": [
-    {"key":"compare","ok":true 或 false,"comment":"針對易混淆詞的回饋（繁體中文，1-2句）"},
-    {"key":"collocations","ok":true 或 false,"comment":"針對搭配詞的回饋"},
-    {"key":"forms","ok":true 或 false,"comment":"針對詞性變化的回饋"}
+  "transcript":"整段錄音的逐字轉錄",
+  "items":[
+    {"key":"compare","ok":true 或 false,"comment":"回饋（繁中,1-2句）；若沒答到就說明還沒提到"},
+    {"key":"collocations","ok":true 或 false,"comment":"回饋"},
+    {"key":"forms","ok":true 或 false,"comment":"回饋"}
   ],
-  "overall":"一句總結 + 鼓勵（繁體中文）"
+  "overall":"一句總結 + 鼓勵（繁中）"
+}`;
+}
+
+function sentencePrompt({ word, sentence, deep }) {
+  return `${COMMON}
+
+學生要用單字「${word}」造一個跟自己有關的句子。學生寫的是：「${sentence}」。
+
+請批改這個句子。${deep ? "請做「深度解析」，包含文法、句構、用字。" : "給簡潔回饋即可。"}
+只回傳 JSON，不要多餘文字：
+{
+  "corrected_sentence":"修正後最自然的英文句子",
+  "error_category":"3-6字標出主要問題類型（時態/介係詞/用字/語意…），幾乎沒錯就寫「很棒」",
+  "quick_tip":"一句最重要的修改重點（繁中）",
+  "diagnosis":${deep ? '"深入說明為什麼這樣改：文法、句構、用字（繁中,2-3句）"' : "null"},
+  "closing":"一句溫暖鼓勵（繁中）"
 }`;
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
-  }
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
-    res.status(500).json({ error: "Server missing GEMINI_API_KEY" });
-    return;
-  }
+  if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+  // 同時相容大小寫的變數名稱（GEMINI_API_KEY / gemini_api_key）
+  const key = process.env.GEMINI_API_KEY || process.env.gemini_api_key;
+  if (!key) { res.status(500).json({ error: "Server missing GEMINI_API_KEY" }); return; }
+
   try {
-    const body =
-      typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
-    const { word, answers } = body;
+    const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
+    const word = body.word || "hollow";
+    const mode = body.mode || (body.audio ? "recall" : "sentence");
 
-    const hasAny =
-      answers && (answers.compare || answers.collocations || answers.forms);
-    if (!hasAny) {
-      res.status(400).json({ error: "還沒有作答內容" });
-      return;
+    let parts;
+    if (mode === "recall") {
+      const audio = body.audio;
+      if (!audio) { res.status(400).json({ error: "沒有收到錄音" }); return; }
+      parts = [
+        { text: recallPrompt(word) },
+        { inlineData: { mimeType: body.mime || "audio/webm", data: audio } },
+      ];
+    } else {
+      const sentence = (body.sentence || "").trim();
+      if (sentence.length < 2) { res.status(400).json({ error: "還沒有句子內容" }); return; }
+      parts = [{ text: sentencePrompt({ word, sentence, deep: body.deep !== false }) }];
     }
-
-    const prompt = buildPrompt({ word: word || "hollow", answers });
 
     const geminiResp = await fetch(ENDPOINT(key), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts }],
         generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
       }),
     });
