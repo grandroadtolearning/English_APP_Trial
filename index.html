@@ -46,6 +46,10 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
     padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
   .label-u{font-size:.82rem;font-weight:500;color:var(--sub);text-decoration:underline;text-underline-offset:3px;}
+  .mini{font-size:.7rem;font-weight:600;color:var(--sub);letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+  .posblock{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+  .posblock .seg{margin-top:10px;}
+  .posblock .seg:first-child{margin-top:0;}
   .eyebrow{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:4px;}
   .eyebrow .sub{font-weight:400;color:var(--sub);font-size:.78rem;}
   .muted{color:var(--sub);}
@@ -60,7 +64,9 @@
 
   .badge-rose{display:inline-block;font-size:.7rem;font-style:italic;padding:1px 8px;border-radius:99px;color:var(--rose-ink);background:var(--rose-bg);border:1px solid var(--rose-line);}
   .badge-orange{display:inline-block;font-size:.7rem;padding:1px 7px;border-radius:5px;color:var(--orange);background:hsl(38 100% 50% / .12);border:1px solid hsl(38 100% 50% / .3);}
-  .nf{font-size:.68rem;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:1px 8px;background:var(--card);}
+  .nf{font-size:.68rem;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 9px;background:var(--card);cursor:pointer;font-family:inherit;flex:none;transition:.15s;}
+  .nf:active{transform:scale(.94);}
+  .nf.on{color:var(--orange);border-color:var(--orange);background:hsl(38 100% 50% / .12);font-weight:600;}
   .entry{padding:10px 0;border-bottom:1px solid var(--line);}
   .entry:last-child{border-bottom:none;}
   .reveal{cursor:pointer;color:var(--blue);font-size:.8rem;}
@@ -77,6 +83,11 @@
   .chunk .en{font-weight:600;color:var(--blue);font-size:1.05rem;}
   .chunk .zh{color:var(--sub);font-size:.84rem;margin-top:1px;}
   .chunk .ex{font-size:.86rem;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+  .chunk-right{display:flex;align-items:center;gap:10px;flex:none;}
+  .chunk .caret{transition:transform .2s;color:var(--blue);}
+  .chunk.open .caret{transform:rotate(180deg);}
+  .chunk .tap{display:inline-block;font-size:.7rem;color:var(--blue);margin-top:4px;}
+  .chunk.open .tap{display:none;}
 
   .collap-head{cursor:pointer;}
   .pk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
@@ -214,37 +225,52 @@
       <div class="center"><span class="pos">adj. / n. / v.</span></div>
     </div>
 
+    <!-- adjective -->
     <div class="card">
-      <span class="label-u">English Definition</span>
-      <div style="margin-top:8px;">
-        <div class="entry"><div class="row"><span class="badge-rose">adjective</span><span class="nf">🔖 不熟</span></div>
-          <p style="margin-top:5px;">Having an empty space inside; not solid; without real value.</p></div>
-        <div class="entry"><div class="row"><span class="badge-rose">noun</span><span class="nf">🔖 不熟</span></div>
-          <p style="margin-top:5px;">A hole or empty space; a low area or depression in land.</p></div>
-        <div class="entry"><div class="row"><span class="badge-rose">verb</span><span class="nf">🔖 不熟</span></div>
-          <p style="margin-top:5px;">To make a hole or empty space in something; to make something hollow.</p></div>
+      <div class="row"><span class="badge-rose">adjective</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="nf" onclick="toggleNf(this)">🔖 不熟</button>
+          <span class="reveal" onclick="reveal(this)">👁 顯示中文</span>
+        </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="row"><span class="label-u">中文定義</span><span class="reveal" onclick="reveal(this)">👁 顯示中文</span></div>
-      <div class="zh-hide" style="margin-top:8px;">
-        <div class="entry"><span class="badge-rose" style="font-style:normal;">adj.</span><p style="margin-top:3px;font-weight:500;">空心的；凹陷的；虛假的</p></div>
-        <div class="entry"><span class="badge-rose" style="font-style:normal;">n.</span><p style="margin-top:3px;font-weight:500;">洞；凹地；低谷</p></div>
-        <div class="entry"><span class="badge-rose" style="font-style:normal;">v.</span><p style="margin-top:3px;font-weight:500;">挖空；使凹陷</p></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="row"><span class="label-u">例句</span><span class="reveal" onclick="reveal(this)">👁 顯示翻譯</span></div>
-      <div style="margin-top:8px;">
-        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">adj.</span><button class="speak" onclick="speak('The old tree trunk was completely hollow, making it a perfect hiding spot for small animals.')">🔊</button></div>
+      <div class="posblock">
+        <div class="seg"><div class="mini">English Definition</div><p>Having an empty space inside; not solid; without real value.</p></div>
+        <div class="seg"><div class="mini">中文定義</div><p class="zh-hide" style="font-weight:500;">空心的；凹陷的；虛假的</p></div>
+        <div class="seg"><div class="row"><span class="mini">例句</span><button class="speak" onclick="speak('The old tree trunk was completely hollow, making it a perfect hiding spot for small animals.')">🔊</button></div>
           <p class="ex">"The old tree trunk was completely hollow, making it a perfect hiding spot for small animals."</p>
           <p class="muted zh-hide" style="font-size:.86rem;">這棵老樹的樹幹完全是空心的，成了小動物完美的藏身之處。</p></div>
-        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">n.</span><button class="speak" onclick="speak('After the heavy rain, a small hollow in the garden collected a pool of water.')">🔊</button></div>
+      </div>
+    </div>
+
+    <!-- noun -->
+    <div class="card">
+      <div class="row"><span class="badge-rose">noun</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="nf" onclick="toggleNf(this)">🔖 不熟</button>
+          <span class="reveal" onclick="reveal(this)">👁 顯示中文</span>
+        </div>
+      </div>
+      <div class="posblock">
+        <div class="seg"><div class="mini">English Definition</div><p>A hole or empty space; a low area or depression in land.</p></div>
+        <div class="seg"><div class="mini">中文定義</div><p class="zh-hide" style="font-weight:500;">洞；凹地；低谷</p></div>
+        <div class="seg"><div class="row"><span class="mini">例句</span><button class="speak" onclick="speak('After the heavy rain, a small hollow in the garden collected a pool of water.')">🔊</button></div>
           <p class="ex">"After the heavy rain, a small hollow in the garden collected a pool of water."</p>
           <p class="muted zh-hide" style="font-size:.86rem;">大雨過後，花園裡的一個小窪地積了一灘水。</p></div>
-        <div class="entry"><div class="row"><span class="badge-rose" style="font-style:normal;">v.</span><button class="speak" onclick="speak('The sculptor used various tools to hollow out the block of wood, creating a beautiful bowl.')">🔊</button></div>
+      </div>
+    </div>
+
+    <!-- verb -->
+    <div class="card">
+      <div class="row"><span class="badge-rose">verb</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="nf" onclick="toggleNf(this)">🔖 不熟</button>
+          <span class="reveal" onclick="reveal(this)">👁 顯示中文</span>
+        </div>
+      </div>
+      <div class="posblock">
+        <div class="seg"><div class="mini">English Definition</div><p>To make a hole or empty space in something; to make something hollow.</p></div>
+        <div class="seg"><div class="mini">中文定義</div><p class="zh-hide" style="font-weight:500;">挖空；使凹陷</p></div>
+        <div class="seg"><div class="row"><span class="mini">例句</span><button class="speak" onclick="speak('The sculptor used various tools to hollow out the block of wood, creating a beautiful bowl.')">🔊</button></div>
           <p class="ex">"The sculptor used various tools to hollow out the block of wood, creating a beautiful bowl."</p>
           <p class="muted zh-hide" style="font-size:.86rem;">雕塑家使用各種工具將木塊挖空，創造出一個美麗的碗。</p></div>
       </div>
@@ -290,19 +316,19 @@
       <div class="eyebrow">👪 詞轉化：單字家族</div>
       <div class="muted" style="font-size:.8rem;margin-bottom:6px;">點擊查看該變體的意思與例句</div>
       <div class="fam-row" onclick="famTog(this)">
-        <div class="row"><div><b>hollow</b> <span class="badge-orange">adj.</span></div><span class="caret">⌄</span></div>
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">adj.</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><span class="caret">⌄</span></div></div>
         <div class="fam-detail hide"><div class="muted">空的；凹陷的；不真實的</div><p class="ex" style="font-size:.84rem;">The old tree had a hollow trunk.</p><p class="muted" style="font-size:.8rem;">這棵老樹的樹幹是空心的。</p></div>
       </div>
       <div class="fam-row" onclick="famTog(this)">
-        <div class="row"><div><b>hollow</b> <span class="badge-orange">n.</span></div><span class="caret">⌄</span></div>
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">n.</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><span class="caret">⌄</span></div></div>
         <div class="fam-detail hide"><div class="muted">窪地；凹陷處；洞</div><p class="ex" style="font-size:.84rem;">We found a sheltered hollow in the hills.</p><p class="muted" style="font-size:.8rem;">我們在山丘中找到了一個避風的窪地。</p></div>
       </div>
       <div class="fam-row" onclick="famTog(this)">
-        <div class="row"><div><b>hollow</b> <span class="badge-orange">v.</span></div><span class="caret">⌄</span></div>
+        <div class="row"><div><b>hollow</b> <span class="badge-orange">v.</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><span class="caret">⌄</span></div></div>
         <div class="fam-detail hide"><div class="muted">挖空，使…中空；使…凹陷</div><p class="ex" style="font-size:.84rem;">The constant dripping of water had hollowed the stone.</p><p class="muted" style="font-size:.8rem;">水滴不斷滴落已將石頭滴穿。</p></div>
       </div>
       <div class="fam-row" onclick="famTog(this)">
-        <div class="row"><div><b>hollowness</b> <span class="badge-orange">n.</span></div><span class="caret">⌄</span></div>
+        <div class="row"><div><b>hollowness</b> <span class="badge-orange">n.</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><span class="caret">⌄</span></div></div>
         <div class="fam-detail hide"><div class="muted">空虛；空洞；中空狀態</div><p class="ex" style="font-size:.84rem;">She felt a deep hollowness after her best friend moved away.</p><p class="muted" style="font-size:.8rem;">她最好的朋友搬走後，她感到一陣深沉的空虛。</p></div>
       </div>
     </div>
@@ -311,15 +337,15 @@
       <div class="eyebrow">🧩 語塊積木 Chunks</div>
       <div class="muted" style="font-size:.8rem;margin-bottom:8px;">點擊語塊聽發音，並展開例句加深印象</div>
       <div class="chunk" onclick="chunkTog(this,'hollow out')">
-        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">hollow out</div><div class="zh">挖空；擊空</div></div><button class="speak" onclick="event.stopPropagation();speak('hollow out')">🔊</button></div>
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">hollow out</div><div class="zh">挖空；擊空</div><span class="tap">▸ 點擊展開例句</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><button class="speak" onclick="event.stopPropagation();speak('hollow out')">🔊</button><span class="caret">⌄</span></div></div>
         <div class="ex hide">"The carpenter decided to hollow out the log to make a unique chair."<br><span class="muted">木匠決定把這段原木挖空，做成一張獨特的椅子。</span></div>
       </div>
       <div class="chunk" onclick="chunkTog(this,'a hollow victory')">
-        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow victory</div><div class="zh">一場空洞的勝利（實質上沒有好處）</div></div><button class="speak" onclick="event.stopPropagation();speak('a hollow victory')">🔊</button></div>
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow victory</div><div class="zh">一場空洞的勝利（實質上沒有好處）</div><span class="tap">▸ 點擊展開例句</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><button class="speak" onclick="event.stopPropagation();speak('a hollow victory')">🔊</button><span class="caret">⌄</span></div></div>
         <div class="ex hide">"Winning the debate but losing all his friends felt like a hollow victory."<br><span class="muted">贏了辯論卻失去了所有朋友，這感覺像是一場空洞的勝利。</span></div>
       </div>
       <div class="chunk" onclick="chunkTog(this,'a hollow sound')">
-        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow sound</div><div class="zh">空洞的聲音</div></div><button class="speak" onclick="event.stopPropagation();speak('a hollow sound')">🔊</button></div>
+        <div class="row"><div><span class="badge-rose" style="font-style:normal;">命中機率高</span><div class="en">a hollow sound</div><div class="zh">空洞的聲音</div><span class="tap">▸ 點擊展開例句</span></div><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="nf" onclick="toggleNf(this,event)">🔖 不熟</button><button class="speak" onclick="event.stopPropagation();speak('a hollow sound')">🔊</button><span class="caret">⌄</span></div></div>
         <div class="ex hide">"We heard a hollow sound when we tapped on the wall."<br><span class="muted">我們敲打牆壁時，聽到一種空洞的聲音。</span></div>
       </div>
     </div>
@@ -328,7 +354,7 @@
       <div class="eyebrow collap-head" onclick="collap(this)">⚔️ 易混淆 PK：中空結構 vs. 內部無物 <span class="caret" style="margin-left:auto;">⌄</span></div>
       <div class="collap-body hide">
         <div class="pk">
-          <div class="l"><div class="h">hollow</div>The dentist found a <b>hollow</b> space in the tooth.</div>
+          <div class="l"><div class="h">hollow</div>The old tree had a <b>hollow</b> trunk.</div>
           <div class="r"><div class="h">empty</div>The glass was <b>empty</b> after I drank all the water.</div>
         </div>
         <p class="muted" style="font-size:.84rem;">'hollow' 強調物體本身是中空的結構，或指言詞、承諾等缺乏實質內容，帶有「虛假、無意義」的負面意味。而 'empty' 則單純指裡面沒有東西，可能是被用光或移走了，通常沒有 'hollow' 那樣的隱含意義。</p>
@@ -339,6 +365,7 @@
       <div class="eyebrow" style="color:var(--amber-ink);">🧮 組裝公式</div>
       <div class="code">S + hollow (v.) + O + out</div>
       <p class="ex">"The sculptor hollowed out the block of wood."</p>
+      <p class="muted" style="font-size:.84rem;margin-top:2px;">雕塑家把那塊木頭挖空了。</p>
       <div class="trap">⚠️ 陷阱：注意動詞 'hollow' 常與 'out' 搭配形成片語 'hollow out' 表示「挖空」，此時動詞是及物的，後面需要受詞。</div>
     </div>
 
@@ -353,37 +380,35 @@
       <div id="clozeFb" style="font-size:.86rem;margin-top:8px;"></div>
     </div>
 
-    <!-- 主動回想（語音 + AI） -->
-    <div class="card">
+    <!-- 主動回想（填空答對後才解鎖；一段連續錄音 → 最後一起送出 → AI 轉錄＋評估） -->
+    <div class="card hide" id="recallSection">
       <div class="eyebrow">🎙️ 主動回想 · 用自己的話解釋</div>
-      <div class="muted" style="font-size:.8rem;margin-bottom:10px;">按麥克風開口說，AI 會即時評估你的理解</div>
+      <div class="muted" style="font-size:.8rem;margin-bottom:10px;">按麥克風開口說，依序回答三題（同一段錄音）。說完按「送出評估」，AI 才會轉成文字並評估。</div>
 
       <div class="task">
         <div class="row"><div><span class="num">1. 易混淆詞</span><div class="desc">說明這個字和相似字的差異</div><div class="hintq">例如：這個字和 "empty" 有什麼不同？</div></div>
           <button class="micbtn" id="micCompare" onclick="toggleRec('compare')">🎤</button></div>
-        <textarea id="txtCompare" placeholder="（按麥克風用英文/中文說，也可打字）"></textarea>
-        <div class="st" id="stCompare">按麥克風開始</div>
+        <div class="st" id="stCompare">按麥克風開始錄音</div>
         <div id="fbCompare"></div>
       </div>
 
       <div class="task">
         <div class="row"><div><span class="num">2. 搭配詞</span><div class="desc">說出你記得的搭配詞和意思</div><div class="hintq">你記得 3 個搭配詞嗎？試著說出它們的意思</div></div>
           <button class="micbtn" id="micCollocations" onclick="toggleRec('collocations')">🎤</button></div>
-        <textarea id="txtCollocations" placeholder="（例如 hollow out、a hollow victory…）"></textarea>
-        <div class="st" id="stCollocations">按麥克風開始</div>
+        <div class="st" id="stCollocations">按麥克風開始錄音</div>
         <div id="fbCollocations"></div>
       </div>
 
       <div class="task" style="margin-bottom:0;">
         <div class="row"><div><span class="num">3. 詞性變化</span><div class="desc">說出不同詞性的變化形式</div><div class="hintq">這個字有 4 個詞性變化，你記得嗎？</div></div>
           <button class="micbtn" id="micForms" onclick="toggleRec('forms')">🎤</button></div>
-        <textarea id="txtForms" placeholder="（例如 hollow adj./n./v.、hollowness n.…）"></textarea>
-        <div class="st" id="stForms">按麥克風開始</div>
+        <div class="st" id="stForms">按麥克風開始錄音</div>
         <div id="fbForms"></div>
       </div>
 
       <div class="spacer"></div>
-      <button class="btn primary sm" id="submitEval" onclick="submitEval()">✈ 送出評估</button>
+      <button class="btn primary sm" id="submitEval" onclick="submitEval()">✈ 送出評估（轉文字 + AI 評估）</button>
+      <div id="evalTranscript"></div>
       <div id="evalOverall"></div>
     </div>
 
@@ -456,7 +481,7 @@
       <div class="eyebrow">不只是 AI 工具</div>
       <div>Beverly 教練<b style="color:#ffd60a">每週看你的學習數據</b>，找出你卡關的地方，再用 1-on-1 的時間陪你討論、調整節奏。AI 負責每天的練習與回饋，教練負責讓你走得遠。</div>
     </div>
-    <a class="cta" id="lineCta" href="https://line.me/R/ti/p/@desheng" target="_blank" rel="noopener">
+    <a class="cta" id="lineCta" href="https://lin.ee/S4WsM5M" target="_blank" rel="noopener">
       <button class="btn green">💬 加 Line 預約免費試聽</button>
     </a>
     <div class="spacer"></div>
@@ -488,12 +513,26 @@
     const open=b.classList.toggle('hide')===false;
     c.textContent=open?'－':'點擊生成 ✦';
   }
+  /* 不熟 標記切換 */
+  function toggleNf(el,e){
+    if(e)e.stopPropagation();
+    el.classList.toggle('on');
+    el.textContent=el.classList.contains('on')?'🔖 已標不熟':'🔖 不熟';
+  }
   /* 填空 */
   function checkCloze(){
     const v=document.getElementById('clozeInput').value.trim().toLowerCase();
     const fb=document.getElementById('clozeFb');
-    if(v==='hollowed'||v==='hollow'){fb.innerHTML='<span style="color:var(--green);font-weight:600;">✅ 正確！hollowed out（挖空）</span>';}
-    else{fb.innerHTML='<span style="color:var(--red);">再想想 — 提示：是 hollow 的過去式，hollow___ out</span>';}
+    if(v==='hollowed'||v==='hollow'){
+      fb.innerHTML='<span style="color:var(--green);font-weight:600;">✅ 正確！hollowed out（挖空）— 解鎖「主動回想」🎙️</span>';
+      const rs=document.getElementById('recallSection');
+      if(rs.classList.contains('hide')){
+        rs.classList.remove('hide');
+        setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),200);
+      }
+    } else {
+      fb.innerHTML='<span style="color:var(--red);">再想想 — 提示：是 hollow 的過去式，hollow___ out</span>';
+    }
   }
 
   /* 階段切換 + dots */
@@ -514,54 +553,87 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  /* 語音辨識（Stage 3 三題） */
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  let rec=null,recKey=null;
+  /* ===== Stage 2 主動回想：一段連續錄音（分段 pause/resume），送出時才轉錄＋評估 ===== */
   const KEYS=['compare','collocations','forms'];
   const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
-  KEYS.forEach(k=>{
-    document.getElementById('txt'+cap(k)).addEventListener('input',()=>{});
-  });
-  function toggleRec(key){
-    const mic=document.getElementById('mic'+cap(key)), st=document.getElementById('st'+cap(key));
-    if(!SR){st.textContent='此瀏覽器不支援語音，請直接打字（建議 Chrome / Safari）';document.getElementById('txt'+cap(key)).focus();return;}
-    if(rec&&recKey===key){rec.stop();return;}
-    if(rec){rec.stop();}
-    rec=new SR();recKey=key;rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
-    mic.classList.add('rec');st.textContent='聽你說…（再按一下停止）';
-    let fin='';
-    rec.onresult=(e)=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else it+=t;}
-      document.getElementById('txt'+cap(key)).value=(fin+it).trim();};
-    rec.onerror=()=>{st.textContent='聽不太到，請再試一次或直接打字';mic.classList.remove('rec');};
-    rec.onend=()=>{mic.classList.remove('rec');rec=null;st.textContent='錄好了！可再按一次重講';};
-    rec.start();
+  let mediaRec=null, mediaStream=null, recChunks=[], recState='idle', activeKey=null, stopResolve=null;
+  const spoken={}; // 哪幾段錄過
+
+  function micSupported(){return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);}
+  function setStatus(key,t){document.getElementById('st'+cap(key)).textContent=t;}
+  function refreshRecUI(){
+    KEYS.forEach(k=>{
+      const recording = (recState==='recording' && activeKey===k);
+      document.getElementById('mic'+cap(k)).classList.toggle('rec',recording);
+      let t='按麥克風開始錄音';
+      if(recording) t='● 錄音中…（再按一下暫停）';
+      else if(recState==='paused' && activeKey===k) t='⏸ 已暫停（按其他段繼續，或送出）';
+      else if(spoken[k]) t='✓ 這段已錄（可再按重講）';
+      setStatus(k,t);
+    });
+  }
+  function blobToB64(blob){return new Promise(res=>{const r=new FileReader();r.onloadend=()=>res(String(r.result).split(',')[1]||'');r.readAsDataURL(blob);});}
+
+  async function ensureRec(){
+    if(mediaRec) return;
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mime=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':(MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'');
+    mediaRec=new MediaRecorder(mediaStream, mime?{mimeType:mime}:undefined);
+    recChunks=[];
+    mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)recChunks.push(e.data);};
+    mediaRec.onstop=()=>{
+      try{mediaStream.getTracks().forEach(t=>t.stop());}catch(e){}
+      const blob=new Blob(recChunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});
+      const r=stopResolve; stopResolve=null; mediaRec=null; mediaStream=null; recState='idle'; activeKey=null;
+      if(r)r(blob);
+    };
   }
 
-  /* 送出評估 → AI */
-  async function submitEval(){
-    const answers={
-      compare:document.getElementById('txtCompare').value.trim(),
-      collocations:document.getElementById('txtCollocations').value.trim(),
-      forms:document.getElementById('txtForms').value.trim()
-    };
-    if(!answers.compare&&!answers.collocations&&!answers.forms){
-      document.getElementById('evalOverall').innerHTML='<div class="fb bad">⚠️ 至少先回答一題再送出評估。</div>';return;
-    }
-    const btn=document.getElementById('submitEval');btn.disabled=true;
-    const ov=document.getElementById('evalOverall');
-    ov.innerHTML='<div class="loading"><span class="ld"></span><span class="ld"></span><span class="ld"></span> AI 評估中…</div>';
-    KEYS.forEach(k=>document.getElementById('fb'+cap(k)).innerHTML='');
+  async function toggleRec(key){
+    if(!micSupported()){setStatus(key,'此瀏覽器不支援錄音，建議用 Chrome / Safari');return;}
     try{
-      const r=await fetch('/api/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({word:'hollow',answers})});
-      const raw=await r.text();let data;
-      try{data=JSON.parse(raw);}catch{throw new Error('SERVER');}
-      if(!r.ok||data.error){throw new Error(data.error||'AI 回應失敗');}
-      if(data.raw){ov.innerHTML='<div class="fb">'+esc(data.raw)+'</div>';return;}
-      (data.items||[]).forEach(it=>{
+      if(recState==='idle'){
+        await ensureRec(); mediaRec.start(); recState='recording'; activeKey=key; spoken[key]=true;
+      } else if(recState==='recording' && activeKey===key){
+        mediaRec.pause(); recState='paused';
+      } else if(recState==='paused'){
+        mediaRec.resume(); recState='recording'; activeKey=key; spoken[key]=true;
+      } else { // 錄音中、換到另一段：音訊連續，只移動焦點
+        activeKey=key; spoken[key]=true;
+      }
+    }catch(e){ setStatus(key,'需要麥克風權限，請允許後再試一次'); return; }
+    refreshRecUI();
+  }
+
+  async function submitEval(){
+    const ov=document.getElementById('evalOverall');
+    const tr=document.getElementById('evalTranscript');
+    if(recState==='idle' && !recChunks.length && !mediaRec){
+      ov.innerHTML='<div class="fb bad">⚠️ 先按麥克風錄一段再送出評估。</div>'; return;
+    }
+    // 停止錄音，取得「一整段」音訊
+    let blob=null;
+    if(mediaRec){ blob=await new Promise(res=>{stopResolve=res; try{mediaRec.stop();}catch(e){res(null);} }); }
+    refreshRecUI();
+    if(!blob || !blob.size){ ov.innerHTML='<div class="fb bad">⚠️ 沒有錄到聲音，請再試一次。</div>'; return; }
+
+    const btn=document.getElementById('submitEval'); btn.disabled=true;
+    tr.innerHTML='';
+    ov.innerHTML='<div class="loading"><span class="ld"></span><span class="ld"></span><span class="ld"></span> AI 轉錄並評估中…</div>';
+    KEYS.forEach(k=>{document.getElementById('fb'+cap(k)).innerHTML='';});
+    try{
+      const audio=await blobToB64(blob);
+      const r=await fetch('/api/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'recall',word:'hollow',mime:blob.type||'audio/webm',audio})});
+      const raw=await r.text(); let d;
+      try{d=JSON.parse(raw);}catch{throw new Error('SERVER');}
+      if(!r.ok||d.error){throw new Error(d.error||'AI 回應失敗');}
+      if(d.raw){ov.innerHTML='<div class="fb">'+esc(d.raw)+'</div>';return;}
+      if(d.transcript) tr.innerHTML='<div class="fb"><div style="font-size:.78rem;color:var(--sub);margin-bottom:3px;">🎧 你說的內容（AI 轉錄）</div>'+esc(d.transcript)+'</div>';
+      (d.items||[]).forEach(it=>{
         const el=document.getElementById('fb'+cap(it.key));
         if(el)el.innerHTML='<div class="item-fb '+(it.ok?'ok':'bad')+'">'+(it.ok?'✅ ':'💡 ')+esc(it.comment||'')+'</div>';
       });
-      ov.innerHTML='<div class="fb ok"><b>整體：</b>'+esc(data.overall||'做得好！')+'</div>';
+      ov.innerHTML='<div class="fb ok"><b>整體：</b>'+esc(d.overall||'做得好！')+'</div>';
     }catch(err){
       const msg=err.message==='SERVER'?'AI 服務尚未就緒（請確認已部署且已設定 GEMINI_API_KEY）':(err.message||'發生錯誤');
       ov.innerHTML='<div class="fb bad">⚠️ '+msg+'，請再試一次。</div>';
